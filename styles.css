@@ -1,0 +1,128 @@
+/* Diseño: dos personajes lado a lado, armería debajo y consola de salida al final. */
+
+/* ---------- Colores y tipografías (tema claro por defecto) ---------- */
+:root {
+  --bg: #eceff1;
+  --surface: #f8f9fa;
+  --fg: #1b2026;
+  --muted: #566370;
+  --line: #cdd4da;
+  --ember: #c0430f;
+  --steel: #5d7183;
+  --good: #2f7d4f;
+  --bad: #b3261e;
+  --ficha-activa-texto: #ffffff;
+  --log-bg: #161b20;
+  --log-fg: #dbe3ea;
+  --font-display: "Rajdhani", "Arial Narrow", sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+/* Tema oscuro: sigue al sistema, salvo que la página fuerce uno */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12161a; --surface: #1b2127; --fg: #e6ebef; --muted: #93a1ad; --line: #2d363e;
+    --ember: #ff7a3d; --steel: #8fa3b5; --good: #5fc08a; --bad: #ff7b72;
+    --ficha-activa-texto: #1b1208;
+    --log-bg: #0b0e11; --log-fg: #d5dde4;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12161a; --surface: #1b2127; --fg: #e6ebef; --muted: #93a1ad; --line: #2d363e;
+  --ember: #ff7a3d; --steel: #8fa3b5; --good: #5fc08a; --bad: #ff7b72;
+  --ficha-activa-texto: #1b1208;
+  --log-bg: #0b0e11; --log-fg: #d5dde4;
+  color-scheme: dark;
+}
+
+/* ---------- Base ---------- */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 15px/1.5 var(--font-body);
+  padding-block: 28px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+main { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+h1, h2 { font-family: var(--font-display); font-weight: 700; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1.05; letter-spacing: .01em; }
+h2 { font-size: 1.35rem; letter-spacing: .04em; text-transform: uppercase; }
+
+.lead { max-width: 65ch; color: var(--muted); margin: 10px 0 0; }
+.lead code { font-family: var(--font-mono); font-size: .88em; color: var(--fg); }
+.nota { color: var(--muted); max-width: 65ch; margin: 6px 0 14px; }
+
+/* ---------- Personajes ---------- */
+.personajes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 20px; }
+
+.tarjeta { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.cab { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.cab h2 { font-size: 1.6rem; }
+.hab { font-size: .85rem; color: var(--muted); }
+
+.escena { background: var(--bg); border-radius: 4px; border: 1px solid var(--line); }
+.escena svg { display: block; width: 100%; max-width: 100%; height: auto; max-height: 260px; }
+.traje { fill: var(--traje); }
+.piel { fill: var(--steel); }
+.suelo { fill: var(--line); }
+.swing { transform-origin: 0 0; }
+
+.escena.golpe .swing { animation: golpe .45s ease-out; }
+.escena.herido svg { animation: sacudida .35s ease-out; }
+.escena.caido svg { opacity: .45; filter: grayscale(1); }
+
+@keyframes golpe { 0% { transform: rotate(0); } 40% { transform: rotate(62deg); } 100% { transform: rotate(0); } }
+@keyframes sacudida { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-6px); } 70% { transform: translateX(5px); } }
+
+/* ---------- Vida ---------- */
+.vida { display: flex; flex-direction: column; gap: 4px; }
+.vida-fila { display: flex; justify-content: space-between; font-size: .85rem; color: var(--muted); }
+.vida-fila strong { color: var(--fg); font-variant-numeric: tabular-nums; }
+.barra { height: 10px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.barra > i { display: block; height: 100%; width: 100%; background: var(--good); transition: width .3s ease, background-color .3s; }
+.barra > i.baja { background: var(--bad); }
+
+/* ---------- Equipo y acciones ---------- */
+.equipo { display: flex; flex-direction: column; gap: 6px; }
+.etiqueta { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.etiqueta b { color: var(--fg); }
+.fichas, .acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+
+button { font: inherit; cursor: pointer; border-radius: 4px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 7px 12px; }
+button:hover { border-color: var(--steel); }
+button:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+
+.ficha[aria-pressed="true"] { background: var(--ember); border-color: var(--ember); color: var(--ficha-activa-texto); }
+.acciones button { font-weight: 500; }
+.acciones .peligro { color: var(--bad); }
+
+/* ---------- Armería ---------- */
+.armeria { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 12px; }
+.arma { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; background: var(--surface); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.arma b { font-family: var(--font-display); font-size: 1.15rem; }
+.arma .poder { height: 6px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.arma .poder i { display: block; height: 100%; background: var(--ember); }
+.arma small { color: var(--muted); }
+
+/* ---------- Consola de salida ---------- */
+.consola-cab { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+#consola { list-style: none; margin: 10px 0 0; padding: 14px 16px; background: var(--log-bg); color: var(--log-fg); font: 13.5px/1.6 var(--font-mono); border-radius: 6px; height: 280px; overflow: auto; }
+#consola li { overflow-wrap: anywhere; }
+#consola li.sep { margin-top: 8px; color: #ffb48a; }
+#consola li.sep:first-child { margin-top: 0; }
+#consola li.cambio { color: #8fd3a9; }
+#consola li.dano { color: #ff9b94; }
+
+/* ---------- Movimiento reducido ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .escena.golpe .swing, .escena.herido svg { animation: none; }
+  .barra > i { transition: none; }
+}
